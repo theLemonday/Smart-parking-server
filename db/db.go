@@ -1,8 +1,9 @@
-package main
+package db
 
 import (
 	"database/sql"
 	"os"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/zerolog/log"
@@ -36,7 +37,7 @@ func SetupDatabase() *database {
 		log.Fatal().Err(err).Msg("")
 	}
 
-	getGoInTimestampStmt, err := tx.Prepare("SELECT goInTimestamp FROM current_users WHERE id = ?")
+	getGoInTimestampStmt, err := tx.Prepare("SELECT CAST(goInTimestamp AS VARCHAR) FROM current_users WHERE id = ?")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot gen get go in timestamp stmt")
 	}
@@ -55,14 +56,14 @@ func SetupDatabase() *database {
 	}
 }
 
-func (d database) commit() {
+func (d *database) commit() {
 	err := d.tx.Commit()
 	if err != nil {
 		log.Fatal().Err(err).Msg("")
 	}
 }
 
-func (d database) InsertNewCurrentUser(id string, identifiedBy string) {
+func (d *database) InsertNewCurrentUser(id string, identifiedBy string) {
 	_, err := d.insertStmt.Exec(id, identifiedBy)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -71,17 +72,17 @@ func (d database) InsertNewCurrentUser(id string, identifiedBy string) {
 	d.commit()
 }
 
-func (d database) GetGoInTimestampOfUser(id string) string {
-	var timestamp string
-	err := d.getGoInTimestampStmt.QueryRow(id).Scan(timestamp)
+func (d *database) GetGoInTimestampOfUser(id string) (time.Time, error) {
+	var timestampStr string
+	err := d.getGoInTimestampStmt.QueryRow(id).Scan(timestampStr)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 	}
-
-	return timestamp
+	layout := "2006-01-02T15:04:05-0700"
+	return time.Parse(layout, timestampStr)
 }
 
-func (d database) DeleteUser(id string) {
+func (d *database) DeleteUser(id string) {
 	_, err := d.deleteStmt.Exec(id)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -90,7 +91,7 @@ func (d database) DeleteUser(id string) {
 	d.commit()
 }
 
-func (d database) Close() {
+func (d *database) Close() {
 	d.insertStmt.Close()
 	d.getGoInTimestampStmt.Close()
 	d.deleteStmt.Close()
