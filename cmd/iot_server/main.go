@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/thelemonday/smart-parking-iot-server/cmd/iot_server"
 	"os"
 	"os/signal"
 	"syscall"
@@ -8,6 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/thelemonday/smart-parking-iot-server/controller"
 	"github.com/thelemonday/smart-parking-iot-server/db"
+	"github.com/thelemonday/smart-parking-iot-server/server"
 	"github.com/thelemonday/smart-parking-iot-server/topic"
 	"github.com/thelemonday/smart-parking-iot-server/topic/handler"
 	"github.com/thelemonday/smart-parking-iot-server/viewmodel"
@@ -15,7 +17,10 @@ import (
 
 func main() {
 	_db := db.SetupCacheDb()
-	client := SetupMQTTClient(MainClientConfig)
+
+	go server.RunBackendServer(_db)
+
+	client := SetupMQTTClient(secret.MainClientConfig)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		log.Panic().Err(token.Error()).Msg("")
 	}
