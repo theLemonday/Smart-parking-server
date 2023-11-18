@@ -60,6 +60,16 @@ func (d *cacheDb) GetAllUsers() []User {
 	return users
 }
 
+func (d *cacheDb) UserAuthentication(username, password string) bool {
+	for _, v := range accounts {
+		if username == v.phoneNumber && password == v.password {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (d *cacheDb) IsRFIDTagValid(uid string) bool {
 	for _, v := range uidTags {
 		if v == uid {

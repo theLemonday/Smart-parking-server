@@ -3,8 +3,8 @@ package controller
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/rs/zerolog/log"
-	"github.com/thelemonday/smart-parking-iot-server/topic"
-	"github.com/thelemonday/smart-parking-iot-server/util"
+	"github.com/thelemonday/smart-parking-iot-server/internal/topic"
+	"github.com/thelemonday/smart-parking-iot-server/pkg/util"
 )
 
 type desiredStatus string

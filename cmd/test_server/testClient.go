@@ -3,11 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
+	"github.com/thelemonday/smart-parking-iot-server/internal/topic"
+	"github.com/thelemonday/smart-parking-iot-server/pkg/util"
 	"os"
 
 	"github.com/rs/zerolog/log"
-	"github.com/thelemonday/smart-parking-iot-server/topic"
-	"github.com/thelemonday/smart-parking-iot-server/util"
 )
 
 const optionsStmt = `
@@ -18,11 +19,10 @@ const optionsStmt = `
 4: Publish car go out detected (no)
 
 5: Publish RFID tag detected
-Choice >
-`
+Choice >`
 
 func main() {
-	client := SetupMQTTClient(TestClientConfig)
+	client := mqtt_client.SetupMQTTClient(TestClientConfig)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		log.Panic().Err(token.Error()).Msg("")
 	}

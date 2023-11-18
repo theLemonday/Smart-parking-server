@@ -8,4 +8,5 @@ type DatabaseRepo interface {
 	DeleteUser(id string)
 	GetAllUsers() []User
 	IsRFIDTagValid(uid string) bool
+	UserAuthentication(username, password string) bool
 }

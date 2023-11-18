@@ -2,9 +2,9 @@ package viewmodel
 
 import (
 	"fmt"
+	"github.com/thelemonday/smart-parking-iot-server/pkg/util"
 
 	"github.com/rs/zerolog/log"
-	"github.com/thelemonday/smart-parking-iot-server/util"
 )
 
 func (v *Viewmodel) generateID4Identify() {

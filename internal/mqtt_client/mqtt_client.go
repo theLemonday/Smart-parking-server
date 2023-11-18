@@ -1,11 +1,11 @@
-package main
+package mqtt_client
 
 import (
 	"fmt"
+	secret "github.com/thelemonday/smart-parking-iot-server/configs"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/rs/zerolog/log"
-	"github.com/thelemonday/smart-parking-iot-server/secret"
 )
 
 var msgPubHandler mqtt.MessageHandler = func(c mqtt.Client, m mqtt.Message) {
