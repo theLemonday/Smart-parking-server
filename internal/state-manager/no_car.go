@@ -4,7 +4,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (v *Viewmodel) noCarActions() {
+func (v *StateManager) noCarActions() {
 	log.Info().Msg("Publish no car actions")
 
 	// v.controllerImpl.TurnLEDOff(topic.GreenLEDPubTop)
@@ -13,10 +13,10 @@ func (v *Viewmodel) noCarActions() {
 	// v.controllerImpl.DisplayShowText("Waiting for new user")
 }
 
-func (v *Viewmodel) onNoCarDetection() {
+func (v *StateManager) onNoCarDetection() {
 	v.noCarActions()
 
-	v._newUserIdenitfyStatus = _Unknown
+	v.newUserIdenitfyStatus = unknown
 	v.carGoIn = false
 	v.carGoOut = false
 

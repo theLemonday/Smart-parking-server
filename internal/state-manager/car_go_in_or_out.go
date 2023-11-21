@@ -2,19 +2,20 @@ package viewmodel
 
 import (
 	"fmt"
+
 	"github.com/thelemonday/smart-parking-iot-server/pkg/util"
 
 	"github.com/rs/zerolog/log"
 )
 
-func (v *Viewmodel) generateID4Identify() {
-	v._currentUID = util.GenerateNewNanoID(10)
+func (v *StateManager) generateID4Identify() {
+	v.identificationID = util.GenerateNewNanoID(10)
 	if !v.isGoIn {
-		v._currentUID = fmt.Sprintf("tt%s", v._currentUID)
+		v.identificationID = fmt.Sprintf("tt%s", v.identificationID)
 	}
 }
 
-func (v *Viewmodel) carGoInOrOutActions() {
+func (v *StateManager) carGoInOrOutActions() {
 	log.Info().Msg("Publish car in or out actions")
 
 	// v.controllerImpl.TurnLEDOn(topic.RedLEDPubTop)
@@ -22,12 +23,12 @@ func (v *Viewmodel) carGoInOrOutActions() {
 	// v.controllerImpl.DisplayShowQRCode(v._currentUID)
 }
 
-func (v *Viewmodel) onCarGoIn() {
+func (v *StateManager) onCarGoIn() {
 	v.generateID4Identify()
 
 	v.carGoInOrOutActions()
 
-	v._newUserIdenitfyStatus = _WaittingToBeIdentified
+	v.newUserIdenitfyStatus = waittingToBeIdentified
 
 	log.Info().Msg("Waiting the user to be identified")
 
