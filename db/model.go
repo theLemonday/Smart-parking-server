@@ -2,10 +2,10 @@ package db
 
 import "time"
 
-type account struct {
-	phoneNumber string
-	password    string
-	balance     uint
+type Account struct {
+	Username string `json:"username"`
+	password string
+	Balance  int `json:"balance"`
 }
 
 type User struct {

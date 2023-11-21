@@ -2,10 +2,11 @@ package db
 
 import "time"
 
-// CarParkStatusDatabaseRepo If identified by RFID, id = RFID tag
+// CarParkStatusDAO If identified by RFID, id = RFID tag
 // If identified by QR, id = username
-type CarParkStatusDatabaseRepo interface {
+type CarParkStatusDAO interface {
 	NewUserIdentifiedByRFID(RFIDTag string)
+	NewUserIdentifiedByQRCode(username string)
 	GetGoInTimestampOfUser(id string) (time.Time, error)
 	IsRFIDTagValid(uid string) bool
 	GetAllUsers() []User
@@ -13,7 +14,7 @@ type CarParkStatusDatabaseRepo interface {
 	CalculateCost(id string) int
 }
 
-type AccountsDatabaseRepo interface {
+type AccountsDAO interface {
 	AuthenticateUser(username, password string) (Account, error)
 	GetAccountProfile(username string) (Account, error)
 	UserCreditAccount(username string, creditMoney int) error

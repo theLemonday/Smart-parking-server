@@ -1,4 +1,4 @@
-package ws_server
+package server
 
 import (
 	"github.com/gorilla/websocket"
@@ -8,7 +8,7 @@ import (
 
 type userWSConn struct {
 	*websocket.Conn
-	profile *db.Account
+	account *db.Account
 }
 
 func (c *userWSConn) close() {
@@ -18,5 +18,5 @@ func (c *userWSConn) close() {
 		return
 	}
 
-	log.Info().Msgf("Close websocket connection for user %s", c.profile.Username)
+	log.Info().Msgf("Close websocket connection for user %s", c.account.Username)
 }

@@ -1,4 +1,4 @@
-package viewmodel
+package state_manager
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ func (v *StateManager) onCarGoIn() {
 
 	v.carGoInOrOutActions()
 
-	v.newUserIdenitfyStatus = waittingToBeIdentified
+	v.newUserIdentifyStatus = waitingToBeIdentified
 
 	log.Info().Msg("Waiting the user to be identified")
 

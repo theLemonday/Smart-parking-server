@@ -2,7 +2,7 @@ package handler
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thelemonday/smart-parking-iot-server/internal/viewmodel"
+	"github.com/thelemonday/smart-parking-iot-server/internal/state-manager"
 )
 
 type HandlerRepo interface {
@@ -11,10 +11,10 @@ type HandlerRepo interface {
 
 type HandlerImpl struct {
 	c  mqtt.Client
-	vm *viewmodel.Viewmodel
+	vm *state_manager.StateManager
 }
 
-func SetupHandler(c mqtt.Client, viewmodel *viewmodel.Viewmodel) *HandlerImpl {
+func SetupHandler(c mqtt.Client, viewmodel *state_manager.StateManager) *HandlerImpl {
 	return &HandlerImpl{
 		c:  c,
 		vm: viewmodel,

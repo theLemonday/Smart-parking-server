@@ -1,4 +1,4 @@
-package viewmodel
+package state_manager
 
 import (
 	"github.com/rs/zerolog/log"
@@ -16,9 +16,9 @@ func (v *StateManager) noCarActions() {
 func (v *StateManager) onNoCarDetection() {
 	v.noCarActions()
 
-	v.newUserIdenitfyStatus = unknown
+	v.newUserIdentifyStatus = unknown
 	v.carGoIn = false
 	v.carGoOut = false
 
-	log.Info().Msg("viewmodel reset")
+	log.Info().Msg("state-manager reset")
 }

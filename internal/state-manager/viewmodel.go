@@ -1,4 +1,4 @@
-package viewmodel
+package state_manager
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -60,7 +60,7 @@ func (v *StateManager) HandleStatuses() {
 			log.Info().Msg("Car goes in detected")
 			v.isGoIn = true
 
-			if v.newUserIdenitfyStatus == unknown {
+			if v.newUserIdentifyStatus == unknown {
 				v.onCarGoIn()
 				continue
 			}
@@ -80,7 +80,7 @@ func (v *StateManager) HandleStatuses() {
 				continue
 			}
 
-			if v.newUserIdenitfyStatus == unknown {
+			if v.newUserIdentifyStatus == unknown {
 				v.onCarGoIn()
 				continue
 			}

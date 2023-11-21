@@ -1,4 +1,4 @@
-package viewmodel
+package state_manager
 
 import (
 	"github.com/rs/zerolog/log"
@@ -13,7 +13,7 @@ func (v *StateManager) onUserIdentified() {
 }
 
 func (v *StateManager) newUserIdentifiedHandler(username string) {
-	if v.newUserIdenitfyStatus != waittingToBeIdentified {
+	if v.newUserIdentifyStatus != waitingToBeIdentified {
 		return
 	}
 
@@ -26,14 +26,14 @@ func (v *StateManager) newUserIdentifiedHandler(username string) {
 
 	v.onUserIdentified()
 
-	v.newUserIdenitfyStatus = identified
+	v.newUserIdentifyStatus = identified
 	v.database.NewUserIdentifiedByRFID(username)
 
 }
 
 // If qr code matched, pass username to username reader
 func (v *StateManager) onQRCodeScanned(QRCode string, username string) {
-	if v.newUserIdenitfyStatus != waittingToBeIdentified {
+	if v.newUserIdentifyStatus != waitingToBeIdentified {
 		return
 	}
 

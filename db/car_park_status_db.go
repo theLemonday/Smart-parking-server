@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"math"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -18,17 +19,25 @@ var (
 	}
 )
 
-type currentCarParkingStatusDatabase struct {
+type CurrentCarParkingStatusDatabase struct {
 	currentUsers map[string]User
 }
 
-func NewCurrentCarParkingStatusDatabase() *currentCarParkingStatusDatabase {
-	return &currentCarParkingStatusDatabase{
-		currentUsers: map[string]User{},
+func (d *CurrentCarParkingStatusDatabase) CalculateCost(id string) int {
+	user := d.currentUsers[id]
+
+	duration := time.Now().Sub(user.goInTimestamp).Seconds()
+
+	return int(math.Round(duration) + 0.5 + 10)
+}
+
+func NewCurrentCarParkingStatusDatabase() *CurrentCarParkingStatusDatabase {
+	return &CurrentCarParkingStatusDatabase{
+		currentUsers: make(map[string]User),
 	}
 }
 
-func (d *currentCarParkingStatusDatabase) GetAllUsers() []User {
+func (d *CurrentCarParkingStatusDatabase) GetAllUsers() []User {
 	var users = make([]User, 0, len(d.currentUsers))
 	for _, v := range d.currentUsers {
 		users = append(users, v)
@@ -37,11 +46,7 @@ func (d *currentCarParkingStatusDatabase) GetAllUsers() []User {
 	return users
 }
 
-func (d *currentCarParkingStatusDatabase) AuthenticateUser(username, password string) (*Account, bool) {
-
-}
-
-func (d *currentCarParkingStatusDatabase) IsRFIDTagValid(uid string) bool {
+func (d *CurrentCarParkingStatusDatabase) IsRFIDTagValid(uid string) bool {
 	for _, v := range uidTags {
 		if v == uid {
 			return true
@@ -51,12 +56,17 @@ func (d *currentCarParkingStatusDatabase) IsRFIDTagValid(uid string) bool {
 	return false
 }
 
-func (d *currentCarParkingStatusDatabase) InsertNewCurrentUser(id string, identifiedBy string) {
-	log.Info().Msgf("Insert new user into database")
-	d.currentUsers[id] = User{id: id, identifiedBy: identifiedBy, goInTimestamp: time.Now()}
+func (d *CurrentCarParkingStatusDatabase) NewUserIdentifiedByRFID(RFIDTag string) {
+	log.Info().Msgf("New user identified by RFID tag: %s", RFIDTag)
+	d.currentUsers[RFIDTag] = User{id: RFIDTag, identifiedBy: "rfid", goInTimestamp: time.Now()}
 }
 
-func (d *currentCarParkingStatusDatabase) GetGoInTimestampOfUser(id string) (time.Time, error) {
+func (d *CurrentCarParkingStatusDatabase) NewUserIdentifiedByQRCode(username string) {
+	log.Info().Msgf("New user identified by QRCode: %s", username)
+	d.currentUsers[username] = User{id: username, identifiedBy: "qr", goInTimestamp: time.Now()}
+}
+
+func (d *CurrentCarParkingStatusDatabase) GetGoInTimestampOfUser(id string) (time.Time, error) {
 	if v, ok := d.currentUsers[id]; ok {
 		return v.goInTimestamp, nil
 	}
@@ -64,6 +74,6 @@ func (d *currentCarParkingStatusDatabase) GetGoInTimestampOfUser(id string) (tim
 	return time.Time{}, errors.New("no user with given Id")
 }
 
-func (d *currentCarParkingStatusDatabase) DeleteUser(id string) {
+func (d *CurrentCarParkingStatusDatabase) DeleteUser(id string) {
 	delete(d.currentUsers, id)
 }

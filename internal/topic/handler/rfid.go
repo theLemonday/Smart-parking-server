@@ -19,6 +19,6 @@ func (h HandlerImpl) RFID() mqtt.MessageHandler {
 			log.Error().Err(err).Msg("")
 		}
 
-		h.vm.OnRFIDRead(msg.Uid)
+		h.vm.OnNewUserIdentified(msg.Uid)
 	}
 }
