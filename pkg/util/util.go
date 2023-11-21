@@ -17,6 +17,15 @@ func MarshalJsonData2Byte(data interface{}) []byte {
 	return payload
 }
 
+func UnmarshalByte2JsonData[D any](payload []byte) (*D, error) {
+	var jsonData D
+	if err := json.Unmarshal(payload, &jsonData); err != nil {
+		log.Error().Err(err).Msg("")
+		return nil, err
+	}
+	return &jsonData, nil
+}
+
 func TokenWaitAndLog(token mqtt.Token) {
 	if token.Wait(); token.Error() != nil {
 		log.Error().Err(token.Error()).Msg("")

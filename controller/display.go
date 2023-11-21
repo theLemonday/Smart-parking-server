@@ -29,7 +29,7 @@ func DisplayShowQRCode(c mqtt.Client, text string) {
 	util.TokenWaitAndLog(token)
 }
 
-func (c _ControllerImpl) DisplayShowText(text string) {
+func (c Impl) DisplayShowText(text string) {
 	token := c.client.Publish(topic.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
 		Type: Text,
 		Msg:  text,
@@ -37,7 +37,7 @@ func (c _ControllerImpl) DisplayShowText(text string) {
 	util.TokenWaitAndLog(token)
 }
 
-func (c _ControllerImpl) DisplayShowQRCode(text string) {
+func (c Impl) DisplayShowQRCode(text string) {
 	token := c.client.Publish(topic.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
 		Type: QR,
 		Msg:  text,

@@ -4,12 +4,11 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"net/http"
-
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
+	"net/http"
 
-	"github.com/thelemonday/smart-parking-iot-server/db"
+	"github.com/thelemonday/smart-parking-iot-server/database"
 	"github.com/thelemonday/smart-parking-iot-server/internal/server/presenter"
 )
 
@@ -18,22 +17,23 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-type SmartParkingIotWebsocketServer struct {
+type SmartParkingIotService struct {
 	http.Handler
-	db.AccountsDAO
-	clients map[*userWSConn]bool
+	database.AccountsDAO
+	clients map[*websocketConnectionProfile]bool
+	monitor *websocket.Conn
 	key     *ecdsa.PrivateKey
 }
 
-func NewSmartParkingIotServer(db db.AccountsDAO) *SmartParkingIotWebsocketServer {
-	s := new(SmartParkingIotWebsocketServer)
+func NewSmartParkingIotServer(db database.AccountsDAO) *SmartParkingIotService {
+	s := new(SmartParkingIotService)
 	router := http.NewServeMux()
 
 	router.Handle("/ws", http.HandlerFunc(s.webSocket))
 
 	s.Handler = router
 	s.AccountsDAO = db
-	s.clients = make(map[*userWSConn]bool)
+	s.clients = make(map[*websocketConnectionProfile]bool)
 
 	curve := elliptic.P256()
 	s.key, _ = ecdsa.GenerateKey(curve, rand.Reader)
@@ -41,14 +41,14 @@ func NewSmartParkingIotServer(db db.AccountsDAO) *SmartParkingIotWebsocketServer
 	return s
 }
 
-func (s *SmartParkingIotWebsocketServer) ListenAndServe(port string) {
+func (s *SmartParkingIotService) ListenAndServe(port string) {
 	log.Info().Msgf("Started websocket server on %s", port)
 	if err := http.ListenAndServe(port, s.Handler); err != nil {
 		log.Fatal().Err(err).Msg("")
 	}
 }
 
-func (s *SmartParkingIotWebsocketServer) webSocket(w http.ResponseWriter, r *http.Request) {
+func (s *SmartParkingIotService) webSocket(w http.ResponseWriter, r *http.Request) {
 	account := s.authenticateUser(w, r)
 	if account == nil {
 		return
@@ -56,36 +56,36 @@ func (s *SmartParkingIotWebsocketServer) webSocket(w http.ResponseWriter, r *htt
 
 	log.Info().Msgf("User %s connected", account.Username)
 	log.Info().Msg("Upgrade connection to websocket")
-	ws, err := upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		return
 	}
 
-	conn := userWSConn{Conn: ws, account: account}
-	defer func(conn *userWSConn) {
+	connectionProfile := newWebsocketConnectionProfile(conn, account)
+	defer func(conn *websocketConnectionProfile) {
 		s.removeWebsocketConnectionFromConnectionsList(conn)
 		conn.close()
-	}(&conn)
+	}(connectionProfile)
 
-	s.clients[&conn] = true
-	if err = s.onConnected(&conn); err != nil {
+	s.clients[connectionProfile] = true
+	if err = s.onConnected(connectionProfile); err != nil {
 		log.Error().Err(err).Msg("")
 		return
 	}
-	s.listenWebsocketAndServer(&conn)
+	s.listenWebsocketAndServer(connectionProfile)
 }
 
-func (s *SmartParkingIotWebsocketServer) onConnected(conn *userWSConn) error {
+func (s *SmartParkingIotService) onConnected(conn *websocketConnectionProfile) error {
 	return conn.Conn.WriteJSON(presenter.NewAccountAuthenticationSuccessResponse(conn.account))
 }
 
 type websocketMessage struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
+	Type string `json:"type"`
+	Data any    `json:"data"`
 }
 
-func (s *SmartParkingIotWebsocketServer) listenWebsocketAndServer(conn *userWSConn) {
+func (s *SmartParkingIotService) listenWebsocketAndServer(conn *websocketConnectionProfile) {
 	for {
 		var msg websocketMessage
 		if err := conn.ReadJSON(&msg); err != nil {
@@ -95,7 +95,7 @@ func (s *SmartParkingIotWebsocketServer) listenWebsocketAndServer(conn *userWSCo
 	}
 }
 
-func (s *SmartParkingIotWebsocketServer) removeWebsocketConnectionFromConnectionsList(conn *userWSConn) {
+func (s *SmartParkingIotService) removeWebsocketConnectionFromConnectionsList(conn *websocketConnectionProfile) {
 	log.Info().Msg("Delete websocket connection")
 	delete(s.clients, conn)
 }

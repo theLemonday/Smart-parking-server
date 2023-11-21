@@ -23,13 +23,27 @@ func (v *StateManager) carGoInOrOutActions() {
 	// v.controllerImpl.DisplayShowQRCode(v._currentUID)
 }
 
-func (v *StateManager) onCarGoIn() {
-	v.generateID4Identify()
+func (v *StateManager) carGoInHandler() {
+	if !v.carGoIn {
+		if !v.carGoOut {
+			v.onNoCarDetection()
+			return
+		}
+		return
+	}
 
-	v.carGoInOrOutActions()
+	log.Info().Msg("Car goes in detected")
+	v.isGoIn = true
 
-	v.newUserIdentifyStatus = waitingToBeIdentified
+	if v.newUserIdentifyStatus == unknown {
+		v.generateID4Identify()
 
-	log.Info().Msg("Waiting the user to be identified")
+		v.carGoInOrOutActions()
 
+		v.newUserIdentifyStatus = waitingToBeIdentified
+
+		log.Info().Msg("Waiting the user to be identified")
+
+		return
+	}
 }

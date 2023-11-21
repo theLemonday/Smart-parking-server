@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/rs/zerolog/log"
-	"github.com/thelemonday/smart-parking-iot-server/db"
+	"github.com/thelemonday/smart-parking-iot-server/database"
 )
 
 func unauthorizedResponse(w http.ResponseWriter) {
@@ -12,7 +12,7 @@ func unauthorizedResponse(w http.ResponseWriter) {
 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 }
 
-func (s *SmartParkingIotWebsocketServer) authenticateUser(w http.ResponseWriter, r *http.Request) *db.Account {
+func (s *SmartParkingIotService) authenticateUser(w http.ResponseWriter, r *http.Request) *database.Account {
 	username, password, ok := r.BasicAuth()
 	if !ok {
 		log.Info().Msgf("User %s failed to authenticate", username)

@@ -11,7 +11,7 @@ type _RFIDMsg struct {
 	Uid string `json:"uid"`
 }
 
-func (h HandlerImpl) RFID() mqtt.MessageHandler {
+func (h Impl) RFID() mqtt.MessageHandler {
 	return func(c mqtt.Client, m mqtt.Message) {
 		log.Info().Msg("New RFID card read")
 		var msg _RFIDMsg
@@ -19,6 +19,6 @@ func (h HandlerImpl) RFID() mqtt.MessageHandler {
 			log.Error().Err(err).Msg("")
 		}
 
-		h.vm.OnNewUserIdentified(msg.Uid)
+		h.stateManager.OnRFIDTagRead(msg.Uid)
 	}
 }

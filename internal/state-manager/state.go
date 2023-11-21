@@ -1,5 +1,7 @@
 package state_manager
 
+import "github.com/rs/zerolog/log"
+
 type IdentifyStatus int
 
 const (
@@ -14,9 +16,11 @@ type state struct {
 	newUserIdentifyStatus IdentifyStatus
 	identificationID      string
 	isGoIn                bool
+	slotsStatus           map[string]bool
 }
 
 func resetState(_state *state) {
+	log.Info().Msg("state-manager reset")
 	_state.carGoIn = false
 	_state.carGoOut = false
 	_state.newUserIdentifyStatus = unknown

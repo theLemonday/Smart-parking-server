@@ -9,7 +9,7 @@ package server
 // 	Token string `json:"token"`
 // }
 
-// func (s *SmartParkingIotWebsocketServer) userAuthenticationHandler(w http.ResponseWriter, r *http.Request) {
+// func (s *smartParkingIotWebsocketService) userAuthenticationHandler(w http.ResponseWriter, r *http.Request) {
 // 	var msg accountMsg
 
 // 	if err := json.NewDecoder(r.Body).Decode(&msg); err != nil {

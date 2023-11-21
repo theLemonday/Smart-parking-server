@@ -1,6 +1,6 @@
 package presenter
 
-import "github.com/thelemonday/smart-parking-iot-server/db"
+import "github.com/thelemonday/smart-parking-iot-server/database"
 
 type AccountAuthenticationSuccessResponse struct {
 	Type     string `json:"type"`
@@ -8,7 +8,7 @@ type AccountAuthenticationSuccessResponse struct {
 	Balance  int    `json:"balance"`
 }
 
-func NewAccountAuthenticationSuccessResponse(account *db.Account) *AccountAuthenticationSuccessResponse {
+func NewAccountAuthenticationSuccessResponse(account *database.Account) *AccountAuthenticationSuccessResponse {
 	return &AccountAuthenticationSuccessResponse{
 		Type:     "authentication",
 		Username: account.Username,

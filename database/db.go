@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const sqlite3DatabaseFilePath = "./db/iot.sqlite3"
+const sqlite3DatabaseFilePath = "./database/iot.sqlite3"
 
 type database struct {
 	db                   *sql.DB

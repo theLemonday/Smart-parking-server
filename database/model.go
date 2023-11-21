@@ -1,4 +1,4 @@
-package db
+package database
 
 import "time"
 
@@ -9,8 +9,8 @@ type Account struct {
 }
 
 type User struct {
-	id             string
-	identifiedBy   string
-	goInTimestamp  time.Time
-	goOutTimestamp time.Time
+	Id             string
+	IdentifiedBy   string
+	GoInTimestamp  time.Time
+	GoOutTimestamp time.Time
 }

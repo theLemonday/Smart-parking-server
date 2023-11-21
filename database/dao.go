@@ -1,12 +1,12 @@
-package db
+package database
 
 import "time"
 
 // CarParkStatusDAO If identified by RFID, id = RFID tag
 // If identified by QR, id = username
 type CarParkStatusDAO interface {
-	NewUserIdentifiedByRFID(RFIDTag string)
-	NewUserIdentifiedByQRCode(username string)
+	NewUserIdentifiedByRFID(RFIDTag string) User
+	NewUserIdentifiedByQRCode(username string) User
 	GetGoInTimestampOfUser(id string) (time.Time, error)
 	IsRFIDTagValid(uid string) bool
 	GetAllUsers() []User

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/websocket"
-	"github.com/thelemonday/smart-parking-iot-server/db"
+	"github.com/thelemonday/smart-parking-iot-server/database"
 	"github.com/thelemonday/smart-parking-iot-server/internal/server/presenter"
 )
 
@@ -35,8 +35,8 @@ func mustDialWS(t *testing.T, url string) *websocket.Conn {
 	return ws
 }
 
-func mustMakeSmartParkingIotServer() *SmartParkingIotWebsocketServer {
-	accountsDatabase := db.NewAccountsDatabase(&db.CurrentCarParkingStatusDatabase{})
+func mustMakeSmartParkingIotServer() *SmartParkingIotService {
+	accountsDatabase := database.NewAccountsDatabase(&database.CurrentCarParkingStatusDatabase{})
 	return NewSmartParkingIotServer(accountsDatabase)
 }
 
