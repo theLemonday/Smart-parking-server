@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/thelemonday/smart-parking-iot-server/database"
+	"github.com/thelemonday/smart-parking-iot-server/pkg/domain"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -13,15 +13,14 @@ type newUserEnterMsg struct {
 	GoInTimestamp    time.Time `json:"goInTimestamp"`
 }
 
-func (s *SmartParkingIotService) OnNewUserEnter(user database.User) {
+func (s *SmartParkingIotService) OnNewUserEnter(user *domain.User) {
 	if s.monitor == nil {
 		return
 	}
 
 	err := s.monitor.WriteJSON(&newUserEnterMsg{
-		Uid:              user.Id,
-		IdentifiedMethod: user.IdentifiedBy,
-		GoInTimestamp:    user.GoInTimestamp,
+		Uid:           user.Id,
+		GoInTimestamp: user.GoInTimestamp,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("failed to send new user enter msg to monitor")

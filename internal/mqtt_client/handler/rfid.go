@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/rs/zerolog/log"
 )
@@ -11,7 +10,7 @@ type _RFIDMsg struct {
 	Uid string `json:"uid"`
 }
 
-func (i Impl) RFID() mqtt.MessageHandler {
+func (h MQTTMsgHandler) RFID() mqtt.MessageHandler {
 	return func(c mqtt.Client, m mqtt.Message) {
 		log.Info().Msg("New RFID card read")
 		var msg _RFIDMsg
@@ -19,6 +18,6 @@ func (i Impl) RFID() mqtt.MessageHandler {
 			log.Error().Err(err).Msg("")
 		}
 
-		i.stateManager.OnRFIDTagRead(msg.Uid)
+		h.stateManager.OnRFIDTagRead(msg.Uid)
 	}
 }

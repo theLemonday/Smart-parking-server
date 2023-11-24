@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/base64"
+	database2 "github.com/thelemonday/smart-parking-iot-server/internal"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -36,7 +37,7 @@ func mustDialWS(t *testing.T, url string) *websocket.Conn {
 }
 
 func mustMakeSmartParkingIotServer() *SmartParkingIotService {
-	accountsDatabase := database.NewAccountsDatabase(&database.CurrentCarParkingStatusDatabase{})
+	accountsDatabase := database.NewAccountsDatabase(&database2.CarParkingStatusDatabase{})
 	return NewSmartParkingIotServer(accountsDatabase)
 }
 

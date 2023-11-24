@@ -1,18 +1,18 @@
-package iot_gateway
+package internal
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/rs/zerolog/log"
-	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client"
+	mqtt_client2 "github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
 )
 
 type IotGateway struct {
 	c mqtt.Client
 }
 
-func NewIotGateway(conf mqtt_client.MQTTConfig) *IotGateway {
+func NewIotGateway(conf mqtt_client2.MQTTConfig) *IotGateway {
 	return &IotGateway{
-		c: mqtt_client.SetupMQTTClient(conf),
+		c: mqtt_client2.SetupMQTTClient(conf),
 	}
 }
 

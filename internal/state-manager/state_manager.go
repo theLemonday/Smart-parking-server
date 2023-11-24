@@ -2,23 +2,22 @@ package state_manager
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thelemonday/smart-parking-iot-server/database"
-	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client/controller"
 	"github.com/thelemonday/smart-parking-iot-server/pkg/domain"
+	"github.com/thelemonday/smart-parking-iot-server/pkg/domain/repo"
 	"sync"
 )
 
 type StateManager struct {
 	mqttClient                mqtt.Client
-	controllerImpl            controller.Repo
-	carParkStatusDb           database.CarParkStatusDAO
+	controllerImpl            repo.ControllerRepo
+	carParkStatusDb           domain.CarParkStatusDAO
 	transfer2websocketService domain.StateManager2Websocket
 
 	mu    *sync.Mutex
 	state *state
 }
 
-func NewStateManager(c mqtt.Client, _controller controller.Repo, database database.CarParkStatusDAO) *StateManager {
+func NewStateManager(c mqtt.Client, _controller repo.ControllerRepo, database domain.CarParkStatusDAO) *StateManager {
 	return &StateManager{
 		mqttClient:      c,
 		controllerImpl:  _controller,

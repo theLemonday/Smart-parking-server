@@ -1,12 +1,10 @@
 package domain
 
-import "github.com/thelemonday/smart-parking-iot-server/database"
-
 type StateManager2Websocket interface {
-	OnNewUserEnter(user database.User)
+	OnNewUserEnter(user *User)
 	OnSlotStatusChanged(slotId string, detected bool)
 	OnUserLeave(uid string)
-	OnUserGoOutIdentified(bill *database.PaymentBill)
+	OnUserGoOutIdentified(bill *PaymentBill)
 }
 
 type Websocket2StateManager interface {

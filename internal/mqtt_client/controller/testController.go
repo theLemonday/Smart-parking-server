@@ -2,10 +2,23 @@ package controller
 
 import (
 	"github.com/rs/zerolog/log"
-	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client"
+	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
+	"github.com/thelemonday/smart-parking-iot-server/pkg/domain"
 )
 
 type TestImpl struct{}
+
+func (t TestImpl) DisplayShowWelcome() {
+	log.Info().Msg("display show welcome")
+}
+
+func (t TestImpl) DisplayShowBill(bill domain.PaymentBill) {
+	log.Info().Msgf("display show bill uid: %s, %d", bill.RFIDTag, bill.TotalCost)
+}
+
+func (t TestImpl) DisplayShowSeeYouAgain() {
+	log.Info().Msg("display show see you again")
+}
 
 func (t TestImpl) OpenBarrier() {
 	log.Info().Msg("open barrier")
