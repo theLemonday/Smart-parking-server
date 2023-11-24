@@ -2,10 +2,11 @@ package state_manager
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/rs/zerolog/log"
 	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client"
 	"github.com/thelemonday/smart-parking-iot-server/pkg/util"
-	"strings"
 )
 
 func generateID4Identify(isGoIn bool) string {
@@ -116,11 +117,11 @@ func (s *StateManager) OnRFIDTagRead(uid string) {
 
 	if s.state.isGoIn {
 		s.transfer2websocketService.OnNewUserEnter(user)
+		s.onUserIdentified()
 	} else {
-
+		bill := s.carParkStatusDb.CalculateCost(uid)
+		s.transfer2websocketService.OnUserGoOutIdentified(bill)
 	}
-
-	s.onUserIdentified()
 }
 
 func (s *StateManager) OnQRCodeScanned(QRCode, username string) {
@@ -142,5 +143,10 @@ func (s *StateManager) OnQRCodeScanned(QRCode, username string) {
 		s.transfer2websocketService.OnNewUserEnter(user)
 	}
 
+	s.onUserIdentified()
+}
+
+func (s *StateManager) OnUserIdentifiedByRFIDDonePayment(uid string) {
+	s.carParkStatusDb.DeleteUser(uid)
 	s.onUserIdentified()
 }

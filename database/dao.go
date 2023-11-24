@@ -11,12 +11,12 @@ type CarParkStatusDAO interface {
 	IsRFIDTagValid(uid string) bool
 	GetAllUsers() []User
 	DeleteUser(id string)
-	CalculateCost(id string) int
+	CalculateCost(id string) *PaymentBill
 }
 
 type AccountsDAO interface {
 	AuthenticateUser(username, password string) (Account, error)
 	GetAccountProfile(username string) (Account, error)
 	UserCreditAccount(username string, creditMoney int) error
-	UserPayParkingCost(username string) (bool, error)
+	// ParkingCostBill(username string) (*PaymentBill, error)
 }

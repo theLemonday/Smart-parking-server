@@ -23,12 +23,18 @@ type CurrentCarParkingStatusDatabase struct {
 	currentUsers map[string]*User
 }
 
-func (d *CurrentCarParkingStatusDatabase) CalculateCost(id string) int {
+func (d *CurrentCarParkingStatusDatabase) CalculateCost(id string) *PaymentBill {
 	user := d.currentUsers[id]
 
-	duration := time.Now().Sub(user.GoInTimestamp).Seconds()
+	goOutTimestamp := time.Now()
+	duration := goOutTimestamp.Sub(user.GoInTimestamp).Seconds()
 
-	return int(math.Round(duration) + 0.5 + 10)
+	return &PaymentBill{
+		Username:       id,
+		TotalCost:      int(math.Round(duration) + 0.5 + 10),
+		GoInTimestamp:  user.GoInTimestamp,
+		GoOutTimestamp: goOutTimestamp,
+	}
 }
 
 func NewCurrentCarParkingStatusDatabase() *CurrentCarParkingStatusDatabase {
@@ -83,3 +89,7 @@ func (d *CurrentCarParkingStatusDatabase) GetGoInTimestampOfUser(id string) (tim
 func (d *CurrentCarParkingStatusDatabase) DeleteUser(id string) {
 	delete(d.currentUsers, id)
 }
+
+// func (d *CurrentCarParkingStatusDatabase) ParkingCostBill(username string) (*PaymentBill, error) {
+// account := d.
+// }

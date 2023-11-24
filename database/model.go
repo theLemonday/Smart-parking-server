@@ -14,3 +14,10 @@ type User struct {
 	GoInTimestamp  time.Time
 	GoOutTimestamp time.Time
 }
+
+type PaymentBill struct {
+	Username       string
+	GoInTimestamp  time.Time
+	GoOutTimestamp time.Time
+	TotalCost      int
+}

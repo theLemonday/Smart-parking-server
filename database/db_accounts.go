@@ -74,19 +74,3 @@ func (a AccountsDatabase) UserCreditAccount(username string, creditMoney int) er
 
 	return nil
 }
-
-func (a AccountsDatabase) UserPayParkingCost(username string) (bool, error) {
-	account, err := a.findAccount(username)
-	if err != nil {
-		return false, err
-	}
-
-	cost := a.CarParkStatusDAO.CalculateCost(username)
-	if account.Balance < cost {
-		return false, ErrAccountMoneyNotEnough
-	}
-
-	account.Balance -= cost
-
-	return true, nil
-}

@@ -6,9 +6,10 @@ type StateManager2Websocket interface {
 	OnNewUserEnter(user database.User)
 	OnSlotStatusChanged(slotId string, detected bool)
 	OnUserLeave(uid string)
+	OnUserGoOutIdentified(bill *database.PaymentBill)
 }
 
 type Websocket2StateManager interface {
-	OnUserAuthenticated()
-	OnUserDonePayment(username string)
+	//OnUserDonePayment(username string)
+	OnUserIdentifiedByRFIDDonePayment(uid string)
 }

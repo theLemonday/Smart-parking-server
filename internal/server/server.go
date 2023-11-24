@@ -22,7 +22,7 @@ var upgrader = websocket.Upgrader{
 type SmartParkingIotService struct {
 	http.Handler
 	database.AccountsDAO
-	clients map[*websocketConnectionProfile]bool
+	clients map[string]*websocketConnectionProfile
 	monitor *websocket.Conn
 	key     *ecdsa.PrivateKey
 }
@@ -36,7 +36,7 @@ func NewSmartParkingIotServer(db database.AccountsDAO) *SmartParkingIotService {
 
 	s.Handler = router
 	s.AccountsDAO = db
-	s.clients = make(map[*websocketConnectionProfile]bool)
+	s.clients = make(map[string]*websocketConnectionProfile)
 
 	curve := elliptic.P256()
 	var err error
@@ -70,12 +70,9 @@ func (s *SmartParkingIotService) webSocket(w http.ResponseWriter, r *http.Reques
 	}
 
 	connectionProfile := newWebsocketConnectionProfile(conn, account)
-	defer func(conn *websocketConnectionProfile) {
-		s.removeWebsocketConnectionFromConnectionsList(conn)
-		conn.close()
-	}(connectionProfile)
+	defer s.removeWebsocketConnectionFromConnectionsList(account.Username)
 
-	s.clients[connectionProfile] = true
+	s.clients[account.Username] = connectionProfile
 	if err = s.onConnected(connectionProfile); err != nil {
 		log.Error().Err(err).Msg("")
 		return
@@ -99,10 +96,16 @@ func (s *SmartParkingIotService) listenWebsocketAndServer(conn *websocketConnect
 			log.Info().Err(err).Msg("")
 			return
 		}
+
+		switch msg.Type {
+		case "pay-request":
+			s.onUserConfirmPayment(&msg.Data)
+		}
 	}
 }
 
-func (s *SmartParkingIotService) removeWebsocketConnectionFromConnectionsList(conn *websocketConnectionProfile) {
+func (s *SmartParkingIotService) removeWebsocketConnectionFromConnectionsList(username string) {
 	log.Info().Msg("Delete websocket connection")
-	delete(s.clients, conn)
+	s.clients[username].close()
+	delete(s.clients, username)
 }
