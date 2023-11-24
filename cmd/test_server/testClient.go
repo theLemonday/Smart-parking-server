@@ -3,8 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
-	"github.com/thelemonday/smart-parking-iot-server/internal/topic"
+	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client"
 	"github.com/thelemonday/smart-parking-iot-server/pkg/util"
 	"os"
 
@@ -31,23 +30,23 @@ func main() {
 	for fmt.Println(optionsStmt); scanner.Scan(); fmt.Print("Choice >") {
 		switch scanner.Text() {
 		case "1":
-			client.Publish(topic.IRGoInDirection, 2, false, util.MarshalJsonData2Byte(map[string]any{
+			client.Publish(mqtt_client.IRGoInDirection, 2, false, util.MarshalJsonData2Byte(map[string]any{
 				"detected": true,
 			}))
 		case "2":
-			client.Publish(topic.IRGoInDirection, 2, false, util.MarshalJsonData2Byte(map[string]any{
+			client.Publish(mqtt_client.IRGoInDirection, 2, false, util.MarshalJsonData2Byte(map[string]any{
 				"detected": false,
 			}))
 		case "3":
-			client.Publish(topic.IRGoOutDirection, 2, false, util.MarshalJsonData2Byte(map[string]any{
+			client.Publish(mqtt_client.IRGoOutDirection, 2, false, util.MarshalJsonData2Byte(map[string]any{
 				"detected": true,
 			}))
 		case "4":
-			client.Publish(topic.IRGoOutDirection, 2, false, util.MarshalJsonData2Byte(map[string]any{
+			client.Publish(mqtt_client.IRGoOutDirection, 2, false, util.MarshalJsonData2Byte(map[string]any{
 				"detected": false,
 			}))
 		case "5":
-			client.Publish(topic.RFIDSubTop, 2, false, util.MarshalJsonData2Byte(map[string]any{
+			client.Publish(mqtt_client.RFIDSubTop, 2, false, util.MarshalJsonData2Byte(map[string]any{
 				"uid": "B3AD9715",
 			}))
 		}

@@ -19,18 +19,18 @@ type state struct {
 	slotsStatus           map[string]bool
 }
 
-func resetState(_state *state) {
-	log.Info().Msg("state-manager reset")
-	_state.carGoIn = false
-	_state.carGoOut = false
-	_state.newUserIdentifyStatus = unknown
-	_state.identificationID = ""
-	_state.isGoIn = false
+func (s *state) reset() {
+	log.Info().Str("service", "state-manager").Msg("reset state")
+	s.carGoIn = false
+	s.carGoOut = false
+	s.newUserIdentifyStatus = unknown
+	s.identificationID = ""
+	s.isGoIn = false
 }
 
-func newState() *state {
+func newCarParkState() *state {
 	s := new(state)
-	resetState(s)
+	s.reset()
 
 	return s
 }

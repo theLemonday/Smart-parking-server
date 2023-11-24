@@ -4,9 +4,11 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"encoding/json"
+	"net/http"
+
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
-	"net/http"
 
 	"github.com/thelemonday/smart-parking-iot-server/database"
 	"github.com/thelemonday/smart-parking-iot-server/internal/server/presenter"
@@ -30,13 +32,18 @@ func NewSmartParkingIotServer(db database.AccountsDAO) *SmartParkingIotService {
 	router := http.NewServeMux()
 
 	router.Handle("/ws", http.HandlerFunc(s.webSocket))
+	router.Handle("/authentication", http.HandlerFunc(s.userAuthenticationHandler))
 
 	s.Handler = router
 	s.AccountsDAO = db
 	s.clients = make(map[*websocketConnectionProfile]bool)
 
 	curve := elliptic.P256()
-	s.key, _ = ecdsa.GenerateKey(curve, rand.Reader)
+	var err error
+	s.key, err = ecdsa.GenerateKey(curve, rand.Reader)
+	if err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 
 	return s
 }
@@ -49,7 +56,7 @@ func (s *SmartParkingIotService) ListenAndServe(port string) {
 }
 
 func (s *SmartParkingIotService) webSocket(w http.ResponseWriter, r *http.Request) {
-	account := s.authenticateUser(w, r)
+	account := s.checkUserCredentials(w, r)
 	if account == nil {
 		return
 	}
@@ -82,7 +89,7 @@ func (s *SmartParkingIotService) onConnected(conn *websocketConnectionProfile) e
 
 type websocketMessage struct {
 	Type string `json:"type"`
-	Data any    `json:"data"`
+	Data json.RawMessage
 }
 
 func (s *SmartParkingIotService) listenWebsocketAndServer(conn *websocketConnectionProfile) {

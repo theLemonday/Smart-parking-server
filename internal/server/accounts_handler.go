@@ -12,7 +12,7 @@ func unauthorizedResponse(w http.ResponseWriter) {
 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 }
 
-func (s *SmartParkingIotService) authenticateUser(w http.ResponseWriter, r *http.Request) *database.Account {
+func (s *SmartParkingIotService) checkUserCredentials(w http.ResponseWriter, r *http.Request) *database.Account {
 	username, password, ok := r.BasicAuth()
 	if !ok {
 		log.Info().Msgf("User %s failed to authenticate", username)
@@ -23,6 +23,7 @@ func (s *SmartParkingIotService) authenticateUser(w http.ResponseWriter, r *http
 	account, err := s.AccountsDAO.AuthenticateUser(username, password)
 	if err != nil {
 		unauthorizedResponse(w)
+		return nil
 	}
 
 	return &account

@@ -2,7 +2,7 @@ package controller
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thelemonday/smart-parking-iot-server/internal/topic"
+	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client"
 	"github.com/thelemonday/smart-parking-iot-server/pkg/util"
 )
 
@@ -22,7 +22,7 @@ func DisplayShowText(c mqtt.Client, text string) {
 }
 
 func DisplayShowQRCode(c mqtt.Client, text string) {
-	token := c.Publish(topic.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
+	token := c.Publish(mqtt_client.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
 		Type: QR,
 		Msg:  text,
 	}))
@@ -30,7 +30,7 @@ func DisplayShowQRCode(c mqtt.Client, text string) {
 }
 
 func (c Impl) DisplayShowText(text string) {
-	token := c.client.Publish(topic.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
+	token := c.client.Publish(mqtt_client.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
 		Type: Text,
 		Msg:  text,
 	}))
@@ -38,7 +38,7 @@ func (c Impl) DisplayShowText(text string) {
 }
 
 func (c Impl) DisplayShowQRCode(text string) {
-	token := c.client.Publish(topic.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
+	token := c.client.Publish(mqtt_client.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
 		Type: QR,
 		Msg:  text,
 	}))

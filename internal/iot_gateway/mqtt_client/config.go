@@ -1,4 +1,4 @@
-package secret
+package mqtt_client
 
 type MQTTConfig struct {
 	Protocol string

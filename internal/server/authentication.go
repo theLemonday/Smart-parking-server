@@ -1,38 +1,34 @@
 package server
 
-// type accountMsg struct {
-// 	Username string `json:"username"`
-// 	Password string `json:"password"`
-// }
+import (
+	"encoding/json"
+	"net/http"
 
-// type authenticationResponse struct {
-// 	Token string `json:"token"`
-// }
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/rs/zerolog/log"
+)
 
-// func (s *smartParkingIotWebsocketService) userAuthenticationHandler(w http.ResponseWriter, r *http.Request) {
-// 	var msg accountMsg
+type authenticationResponse struct {
+	Token string `json:"token"`
+}
 
-// 	if err := json.NewDecoder(r.Body).Decode(&msg); err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
+func (s *SmartParkingIotService) userAuthenticationHandler(w http.ResponseWriter, r *http.Request) {
+	account := s.checkUserCredentials(w, r)
+	if account == nil {
+		return
+	}
 
-// 	account, err := s.AccountsDAO.AuthenticateUser(msg.Username, msg.Password)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusUnauthorized)
-// 		return
-// 	}
+	t := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+		"username": account.Username,
+	})
 
-// 	t := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
-// 		"username": account.Username,
-// 	})
-// 	signedString, err := t.SignedString(s.key)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// 	log.Info().Msgf("Create new jwt token: %s", signedString)
+	signedString, err := t.SignedString(s.key)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Info().Msgf("Create new jwt token: %s", signedString)
 
-// 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(authenticationResponse{Token: signedString})
-// }
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(authenticationResponse{Token: signedString})
+}

@@ -1,16 +1,11 @@
 package server
 
 import (
+	"github.com/thelemonday/smart-parking-iot-server/database"
 	"time"
 
 	"github.com/rs/zerolog/log"
 )
-
-type WebsocketService interface {
-	OnNewUserEnter(uid string, identifiedMethod string, goInTimestamp time.Time)
-	OnSlotStatusChanged(slotId string, occupied bool)
-	OnUserLeave(uid string)
-}
 
 type newUserEnterMsg struct {
 	Uid              string    `json:"uid"`
@@ -18,15 +13,15 @@ type newUserEnterMsg struct {
 	GoInTimestamp    time.Time `json:"goInTimestamp"`
 }
 
-func (s *SmartParkingIotService) OnNewUserEnter(uid string, identifiedMethod string, goInTimestamp time.Time) {
+func (s *SmartParkingIotService) OnNewUserEnter(user database.User) {
 	if s.monitor == nil {
 		return
 	}
 
 	err := s.monitor.WriteJSON(&newUserEnterMsg{
-		Uid:              uid,
-		IdentifiedMethod: identifiedMethod,
-		GoInTimestamp:    goInTimestamp,
+		Uid:              user.Id,
+		IdentifiedMethod: user.IdentifiedBy,
+		GoInTimestamp:    user.GoInTimestamp,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("failed to send new user enter msg to monitor")

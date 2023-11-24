@@ -5,16 +5,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/thelemonday/smart-parking-iot-server/controller"
-	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
-	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client/handler"
-	state_manager "github.com/thelemonday/smart-parking-iot-server/internal/state-manager"
-	"github.com/thelemonday/smart-parking-iot-server/internal/topic"
-
-	"github.com/thelemonday/smart-parking-iot-server/internal/server"
-
 	"github.com/rs/zerolog/log"
 	"github.com/thelemonday/smart-parking-iot-server/database"
+	"github.com/thelemonday/smart-parking-iot-server/internal/server"
 )
 
 func main() {
@@ -23,22 +16,16 @@ func main() {
 	_server := server.NewSmartParkingIotServer(accountsDatabase)
 	go _server.ListenAndServe(serverExposedPort)
 
-	client := mqtt_client.SetupMQTTClient(clientConfig)
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Panic().Err(token.Error()).Msg("")
-	}
+	// iotGateway := iot_gateway.NewIotGateway(clientConfig)
 
-	// _controller := controller.NewController(client)
-	_controller := controller.NewTestController()
-	stateManager := state_manager.NewStateManager(client, _controller, carParkingStatusDatabase, _server)
-	_handler := handler.SetupHandler(client, stateManager)
-	handlers := mqtt_client.MAPSubTopic2MessageHandler{
-		topic.IRSensorSubTop: {QoS: 2, Handler: _handler.CarSensorDetectedHandler()},
-		topic.RFIDSubTop:     {QoS: 2, Handler: _handler.RFID()},
-	}
-	mqtt_client.ClientSubTopics(client, handlers)
-
-	go stateManager.HandleStatuses()
+	// _controller := controller.NewTestController()
+	// stateManager := state_manager.NewStateManager(iotGateway.GetMQTTClient(), _controller, carParkingStatusDatabase)
+	// _handler := handler.SetupHandler(iotGateway.GetMQTTClient(), stateManager)
+	// handlers := iot_gateway.MAPSubTopic2MessageHandler{
+	// 	mqtt_client.IRSensorSubTop: {QoS: 2, Handler: _handler.CarSensorDetectedHandler()},
+	// 	mqtt_client.RFIDSubTop:     {QoS: 2, Handler: _handler.RFID()},
+	// }
+	// iotGateway.SubscribeTopics(handlers)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)

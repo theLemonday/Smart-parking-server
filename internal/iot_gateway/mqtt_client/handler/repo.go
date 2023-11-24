@@ -2,7 +2,7 @@ package handler
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thelemonday/smart-parking-iot-server/internal/state-manager"
+	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/state-manager"
 )
 
 type Repo interface {
