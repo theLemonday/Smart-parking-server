@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/rs/zerolog/log"
+	"github.com/thelemonday/smart-parking-iot-server/internal/domain/user"
 	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
-	"github.com/thelemonday/smart-parking-iot-server/pkg/domain"
 )
 
 type TestImpl struct{}
@@ -12,7 +12,7 @@ func (t TestImpl) DisplayShowWelcome() {
 	log.Info().Msg("display show welcome")
 }
 
-func (t TestImpl) DisplayShowBill(bill domain.PaymentBill) {
+func (t TestImpl) DisplayShowBill(bill user.PaymentBill) {
 	log.Info().Msgf("display show bill uid: %s, %d", bill.RFIDTag, bill.TotalCost)
 }
 

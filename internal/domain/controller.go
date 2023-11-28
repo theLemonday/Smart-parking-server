@@ -1,15 +1,15 @@
-package repo
+package domain
 
 import (
+	"github.com/thelemonday/smart-parking-iot-server/internal/domain/user"
 	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
-	"github.com/thelemonday/smart-parking-iot-server/pkg/domain"
 )
 
 type ControllerRepo interface {
 	OpenBarrier()
 	CloseBarrier()
 	DisplayShowWelcome()
-	DisplayShowBill(bill domain.PaymentBill)
+	DisplayShowBill(bill user.PaymentBill)
 	DisplayShowSeeYouAgain()
 	TurnLEDOn(ledTopic mqtt_client.LEDTopic)
 	TurnLEDOff(ledTopic mqtt_client.LEDTopic)

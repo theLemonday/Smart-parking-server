@@ -2,8 +2,10 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/thelemonday/smart-parking-iot-server/pkg/domain"
 	"net/http"
+
+	"github.com/thelemonday/smart-parking-iot-server/internal/domain"
+	"github.com/thelemonday/smart-parking-iot-server/internal/domain/user"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
@@ -12,14 +14,20 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header.Get("Origin")
+		log.Info().Msgf("client have origin %s want to connect", origin)
+		return origin == "http://localhost:3000"
+	},
 }
 
 type SmartParkingIotService struct {
 	http.Handler
-	monitor *websocket.Conn
+	monitor        *websocket.Conn
+	toStateManager domain.Websocket2StateManager
 }
 
-func (s *SmartParkingIotService) OnUserGoOutIdentified(bill *domain.PaymentBill) {
+func (s *SmartParkingIotService) OnUserGoOutIdentified(bill *user.PaymentBill) {
 	err := s.monitor.WriteJSON(bill)
 	if err != nil {
 		log.Error().Err(err).Msg("send bill to monitor")
@@ -76,9 +84,21 @@ func (s *SmartParkingIotService) listenWebsocketAndServer(conn *websocket.Conn) 
 			return
 		}
 
-		//switch msg.Type {
-		//case "pay-request":
-		//	s.onUserConfirmPayment(&msg.Data)
-		//}
+		switch msg.Type {
+		case "payment-done":
+			s.onPaymentDone(msg.Data)
+		}
 	}
+}
+
+func (s *SmartParkingIotService) onPaymentDone(payload json.RawMessage) {
+	var msg struct {
+		Id string `json:"id"`
+	}
+
+	if err := json.Unmarshal(payload, &msg); err != nil {
+		log.Info().Err(err).Msg("parse on payment done msg failed")
+	}
+
+	s.toStateManager.OnUserIdentifiedByRFIDDonePayment(msg.Id)
 }

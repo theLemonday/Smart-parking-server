@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"github.com/thelemonday/smart-parking-iot-server/internal/domain/user"
 	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
-	"github.com/thelemonday/smart-parking-iot-server/pkg/domain"
 	"github.com/thelemonday/smart-parking-iot-server/pkg/util"
 )
 
@@ -16,7 +16,7 @@ const (
 
 type DisplayControl struct {
 	Type DisplayMessageType `json:"type"`
-	Bill domain.PaymentBill `json:"bill,omitempty"`
+	Bill user.PaymentBill   `json:"bill,omitempty"`
 }
 
 func (i Impl) DisplayShowWelcome() {
@@ -26,7 +26,7 @@ func (i Impl) DisplayShowWelcome() {
 	util.TokenWaitAndLog(token)
 }
 
-func (i Impl) DisplayShowBill(bill domain.PaymentBill) {
+func (i Impl) DisplayShowBill(bill user.PaymentBill) {
 	token := i.client.Publish(mqtt_client.OLEDPubTop, 0, false, util.MarshalJsonData2Byte(DisplayControl{
 		Type: Bill,
 		Bill: bill,

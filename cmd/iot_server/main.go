@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/thelemonday/smart-parking-iot-server/internal"
+	"github.com/thelemonday/smart-parking-iot-server/internal/domain/user"
 	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
 	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client/controller"
 	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client/handler"
@@ -22,8 +23,8 @@ func main() {
 	iotGateway.Connect()
 
 	_controller := controller.NewTestController()
-	carParkingStatusDatabase := internal.NewCarParkingStatusDatabase()
-	stateManager := state_manager.NewStateManager(iotGateway.GetMQTTClient(), _controller, carParkingStatusDatabase)
+	carParkingStatusDatabase := internal.NewUsersDatabase()
+	stateManager := state_manager.NewStateManager(iotGateway.GetMQTTClient(), _controller, user.NewUserUseCase(carParkingStatusDatabase))
 	stateManager.SetWebsocketService(_server)
 	_handler := handler.SetupHandler(iotGateway.GetMQTTClient(), stateManager)
 	handlers := internal.MAPSubTopic2MessageHandler{

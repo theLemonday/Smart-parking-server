@@ -1,36 +1,25 @@
 package server
 
 import (
-	"github.com/thelemonday/smart-parking-iot-server/pkg/domain"
+	"github.com/thelemonday/smart-parking-iot-server/internal/domain/user"
 	"time"
 
 	"github.com/rs/zerolog/log"
 )
 
-type newUserEnterMsg struct {
-	Uid              string    `json:"uid"`
-	IdentifiedMethod string    `json:"type"`
-	GoInTimestamp    time.Time `json:"goInTimestamp"`
-}
-
-func (s *SmartParkingIotService) OnNewUserEnter(user *domain.User) {
+func (s *SmartParkingIotService) OnNewUserEnter(user *user.User) {
 	if s.monitor == nil {
 		return
 	}
 
-	err := s.monitor.WriteJSON(&newUserEnterMsg{
-		Uid:           user.Id,
-		GoInTimestamp: user.GoInTimestamp,
-	})
+	err := s.monitor.WriteJSON(&struct {
+		Uid           string    `json:"uid"`
+		GoInTimestamp time.Time `json:"goInTimestamp"`
+	}{user.Id, user.GoInTimestamp})
 	if err != nil {
 		log.Error().Err(err).Msg("failed to send new user enter msg to monitor")
 		return
 	}
-}
-
-type slotStatusChangedMsg struct {
-	SlotId   string `json:"slotId"`
-	Occupied bool   `json:"occupied"`
 }
 
 func (s *SmartParkingIotService) OnSlotStatusChanged(slotId string, occupied bool) {
@@ -38,18 +27,13 @@ func (s *SmartParkingIotService) OnSlotStatusChanged(slotId string, occupied boo
 		return
 	}
 
-	err := s.monitor.WriteJSON(&slotStatusChangedMsg{
-		SlotId:   slotId,
-		Occupied: occupied,
-	})
+	err := s.monitor.WriteJSON(&struct {
+		SlotId   string `json:"slotId"`
+		Occupied bool   `json:"occupied"`
+	}{slotId, occupied})
 	if err != nil {
 		log.Error().Err(err).Msg("failed to send slot status change msg to monitor")
-		return
 	}
-}
-
-type userLeaveMsg struct {
-	UserUid string `json:"usernameUid"`
 }
 
 func (s *SmartParkingIotService) OnUserLeave(uid string) {
@@ -57,11 +41,10 @@ func (s *SmartParkingIotService) OnUserLeave(uid string) {
 		return
 	}
 
-	err := s.monitor.WriteJSON(&userLeaveMsg{
-		UserUid: uid,
-	})
+	err := s.monitor.WriteJSON(&struct {
+		UserUid string `json:"usernameUid"`
+	}{uid})
 	if err != nil {
 		log.Error().Err(err).Msg("failed to send user leave msg to monitor")
-		return
 	}
 }
