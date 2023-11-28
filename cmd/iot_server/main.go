@@ -1,33 +1,33 @@
 package main
 
 import (
-	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway"
-	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client"
-	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client/controller"
-	"github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/mqtt_client/handler"
-	state_manager "github.com/thelemonday/smart-parking-iot-server/internal/iot_gateway/state-manager"
+	"github.com/thelemonday/smart-parking-iot-server/internal"
+	"github.com/thelemonday/smart-parking-iot-server/internal/domain/user"
+	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client"
+	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client/controller"
+	"github.com/thelemonday/smart-parking-iot-server/internal/mqtt_client/handler"
+	"github.com/thelemonday/smart-parking-iot-server/internal/state-manager"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/rs/zerolog/log"
-	"github.com/thelemonday/smart-parking-iot-server/database"
 	"github.com/thelemonday/smart-parking-iot-server/internal/server"
 )
 
 func main() {
-	carParkingStatusDatabase := database.NewCurrentCarParkingStatusDatabase()
-	accountsDatabase := database.NewAccountsDatabase(carParkingStatusDatabase)
-	_server := server.NewSmartParkingIotServer(accountsDatabase)
+	_server := server.NewSmartParkingIotServer()
 	go _server.ListenAndServe(serverExposedPort)
 
-	iotGateway := iot_gateway.NewIotGateway(clientConfig)
+	iotGateway := internal.NewIotGateway(clientConfig)
+	iotGateway.Connect()
 
 	_controller := controller.NewTestController()
-	stateManager := state_manager.NewStateManager(iotGateway.GetMQTTClient(), _controller, carParkingStatusDatabase)
+	carParkingStatusDatabase := internal.NewUsersDatabase()
+	stateManager := state_manager.NewStateManager(iotGateway.GetMQTTClient(), _controller, user.NewUserUseCase(carParkingStatusDatabase))
 	stateManager.SetWebsocketService(_server)
 	_handler := handler.SetupHandler(iotGateway.GetMQTTClient(), stateManager)
-	handlers := iot_gateway.MAPSubTopic2MessageHandler{
+	handlers := internal.MAPSubTopic2MessageHandler{
 		mqtt_client.IRSensorSubTop: {QoS: 2, Handler: _handler.CarSensorDetectedHandler()},
 		mqtt_client.RFIDSubTop:     {QoS: 2, Handler: _handler.RFID()},
 	}

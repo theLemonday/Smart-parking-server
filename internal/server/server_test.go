@@ -1,21 +1,11 @@
 package server
 
 import (
-	"encoding/base64"
-	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/gorilla/websocket"
-	"github.com/thelemonday/smart-parking-iot-server/database"
-	"github.com/thelemonday/smart-parking-iot-server/internal/server/presenter"
-)
-
-var (
-	username = "02110882985"
-	password = "G_2tEipy9ldDoqn"
-	// url      = "ws://localhost:8080/ws"
 )
 
 func mustDialWS(t *testing.T, url string) *websocket.Conn {
@@ -26,8 +16,7 @@ func mustDialWS(t *testing.T, url string) *websocket.Conn {
 
 	// req.SetBasicAuth(username, password)
 
-	h := http.Header{"Authorization": {"Basic " + base64.StdEncoding.EncodeToString([]byte(username+":"+password))}}
-	ws, _, err := websocket.DefaultDialer.Dial(url, h)
+	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		t.Fatalf("could not open a ws connection on %s %v", url, err)
 	}
@@ -35,13 +24,8 @@ func mustDialWS(t *testing.T, url string) *websocket.Conn {
 	return ws
 }
 
-func mustMakeSmartParkingIotServer() *SmartParkingIotService {
-	accountsDatabase := database.NewAccountsDatabase(&database.CurrentCarParkingStatusDatabase{})
-	return NewSmartParkingIotServer(accountsDatabase)
-}
-
 func TestWebsocket(t *testing.T) {
-	server := httptest.NewServer(mustMakeSmartParkingIotServer())
+	server := httptest.NewServer(NewSmartParkingIotServer())
 	defer server.Close()
 
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + "/ws"
@@ -52,19 +36,6 @@ func TestWebsocket(t *testing.T) {
 			return
 		}
 	}(ws)
-
-	var account presenter.AccountAuthenticationSuccessResponse
-	if err := ws.ReadJSON(&account); err != nil {
-		t.Fatalf("Cannot read account json data")
-	}
-
-	t.Log(account)
-
-	t.Run("websocket send first message if authentication success", func(t *testing.T) {
-		assertCorrectMessage(t, account.Type, "authentication")
-
-		assertCorrectMessage(t, account.Username, username)
-	})
 }
 
 func assertCorrectMessage(t testing.TB, got, want string) {
